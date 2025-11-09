@@ -4,20 +4,13 @@ require("dotenv").config();
 const APP_NAME = "trademarketltd";
 
 const transporter = nodemailer.createTransport({
-
-
-  // service: 'zoho',
   host: process.env.MAIL_HOST,
+  port: process.env.MAIL_PORT_OUT,
   secure: true,
-  port: 465,
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASSWORD,
   },
-  tls: {
-    rejectUnauthorized: true,
-    minVersion: "TLSv1.2",
-  }
 });
 
 transporter.verify((err, success) => {

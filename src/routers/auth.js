@@ -114,7 +114,7 @@ router.post("/register", async (req, res) => {
 
     const otpToken = jwtSign({ otp, email }, "1h");
 
-    // sendOTPByEmail({ email, otp, token: otpToken, name });
+    sendOTPByEmail({ email, otp, token: otpToken, name });
 
     return res.status(200).json({
       message: "success",
@@ -186,7 +186,7 @@ router.post("/verify-email", async (req, res) => {
       user.verified = true;
       await user.save();
 
-      // sendEmailVerified({ email, name: user.name });
+      sendEmailVerified({ email, name: user.name });
 
       return res.status(200).json({ message: "Verified successfully." });
     } else {
@@ -236,7 +236,7 @@ router.post("/resend-verification", async (req, res) => {
   const otp = generateOTP();
   const otpToken = jwtSign({ otp, email }, "1h");
 
-  // sendOTPByEmail({ email, otp, token: otpToken, name: user.name });
+  sendOTPByEmail({ email, otp, token: otpToken, name: user.name });
 
   return res.status(200).json({
     message: "Verification email sent successfully.",
