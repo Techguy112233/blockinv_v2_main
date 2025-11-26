@@ -1,7 +1,7 @@
 const nodemailer = require("nodemailer");
 require("dotenv").config();
 
-const APP_NAME = "trademarketltd";
+const APP_NAME = "Trademarketltd";
 
 const transporter = nodemailer.createTransport({
   host: process.env.MAIL_HOST,
