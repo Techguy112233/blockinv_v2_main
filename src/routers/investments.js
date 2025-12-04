@@ -88,7 +88,6 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-
 router.post("/", async (req, res) => {
   /**
      #swagger.requestBody = {
@@ -112,7 +111,7 @@ router.post("/", async (req, res) => {
     }
     */
   const { uid } = req.user;
-  const { plan_id, amount,currency } = req.body;
+  const { plan_id, amount, currency } = req.body;
 
   const amountNumber = parseFloat(amount);
 
@@ -134,10 +133,27 @@ router.post("/", async (req, res) => {
 
   if (!user) return res.status(404).json({ message: "User does not exists." });
 
-  if (user.balance < amountNumber)
-    return res
-      .status(406)
-      .json({ message: "User does not have sufficient balance." });
+  const balanceSources = [
+    { key: "btcBal", label: "Bitcoin balance" },
+    { key: "ethBal", label: "Ethereum balance" },
+    { key: "solBal", label: "Solana balance" },
+    { key: "balance", label: "Main balance" },
+  ];
+
+  let selectedSource = null;
+
+  for (const source of balanceSources) {
+    if (user[source.key] >= amount) {
+      selectedSource = source;
+      break;
+    }
+  }
+
+  if (!selectedSource)
+    return res.status(406).json({ message: "Insufficient balance" });
+
+  user[selectedSource.key] -= amount;
+  await user.save();
 
   const investment = await Investment.create({
     uid,
@@ -147,7 +163,7 @@ router.post("/", async (req, res) => {
     plan_name: investmentPlan.name,
     duration: investmentPlan.duration,
     amount: amountNumber,
-    currency
+    currency,
   });
 
   await Transaction.create({
@@ -158,7 +174,7 @@ router.post("/", async (req, res) => {
     method: "transfer",
     status: "pending",
     type: "investment",
-    currency
+    currency,
   });
 
   const html = `
@@ -292,10 +308,5 @@ router.post("/", async (req, res) => {
 
   return res.status(200).json({ message: "success", data });
 });
-
-
-
-
-
 
 module.exports = router;
